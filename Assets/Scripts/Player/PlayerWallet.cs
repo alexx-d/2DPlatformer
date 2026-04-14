@@ -9,7 +9,6 @@ public class PlayerWallet : MonoBehaviour
         if (collision.TryGetComponent(out Coin coin))
         {
             _coinsCount += coin.Collect();
-            Debug.Log($"Монеток собрано: {_coinsCount}");
         }
     }
 }

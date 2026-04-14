@@ -1,28 +1,40 @@
+using System;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerMovement))]
+[RequireComponent(typeof(PlayerMovement), typeof(PlayerAnimation))]
 public class PlayerInput : MonoBehaviour
 {
     private const string Horizontal = nameof(Horizontal);
     private const string Jump = nameof(Jump);
+    private const KeyCode AttackKey = KeyCode.F;
 
-    private PlayerMovement _movement;
+    private float _horizontalInput;
+    private float _lastHorizontalInput;
+    private bool _jumpRequested;
 
-    private void Awake()
-    {
-        _movement = GetComponent<PlayerMovement>();
-    }
+    public event Action<float> Moved;
+    public event Action Jumped;
+    public event Action AttackPerformed;
 
     private void Update()
     {
-        float horizontal = Input.GetAxisRaw(Horizontal);
-        bool jumpRequested = Input.GetButtonDown(Jump);
+        _horizontalInput = Input.GetAxisRaw(Horizontal);
+        _jumpRequested = Input.GetButtonDown(Jump);
 
-        _movement.SetDirection(horizontal);
-
-        if (jumpRequested)
+        if (_horizontalInput != _lastHorizontalInput)
         {
-            _movement.TryJump();
+            _lastHorizontalInput = _horizontalInput;
+            Moved?.Invoke(_horizontalInput);
+        }
+
+        if (_jumpRequested)
+        {
+            Jumped?.Invoke();
+        }
+
+        if (Input.GetKeyDown(AttackKey))
+        {
+            AttackPerformed?.Invoke();
         }
     }
 }

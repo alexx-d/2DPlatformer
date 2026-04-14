@@ -1,6 +1,9 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Windows;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(SpriteRenderer))]
+[RequireComponent(typeof(Rigidbody2D), typeof(PlayerInput))]
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float _speed = 5f;
@@ -14,23 +17,43 @@ public class PlayerMovement : MonoBehaviour
     private const float LeftDirection = -1f;
 
     private Rigidbody2D _rigidbody;
+    private PlayerInput _playerInput;
     private Vector3 _initialScale;
 
     private float _direction;
     private bool _isJumpRequested;
     private bool _isGrounded;
 
-    public bool IsGrounded => _isGrounded;
+    public event Action<bool> GroundedChanged;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody2D>();
+        _playerInput = GetComponent<PlayerInput>();
         _initialScale = transform.localScale;
+    }
+
+    private void OnEnable()
+    {
+        _playerInput.Moved += OnPlayerMoved;
+        _playerInput.Jumped += OnPlayerJumped;
+    }
+
+    private void OnDisable()
+    {
+        _playerInput.Moved -= OnPlayerMoved;
+        _playerInput.Jumped -= OnPlayerJumped;
     }
 
     private void FixedUpdate()
     {
+        bool wasGrounded = _isGrounded;
         _isGrounded = CheckGround();
+
+        if (_isGrounded != wasGrounded)
+        {
+            GroundedChanged?.Invoke(_isGrounded);
+        }
 
         _rigidbody.velocity = new Vector2(_direction * _speed, _rigidbody.velocity.y);
 
@@ -43,12 +66,12 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void SetDirection(float direction)
+    private void OnPlayerMoved(float direction)
     {
         _direction = direction;
     }
 
-    public void TryJump()
+    private void OnPlayerJumped()
     {
         if (_isGrounded)
         {

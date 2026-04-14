@@ -1,22 +1,45 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Animator), typeof(Rigidbody2D), typeof(PlayerMovement))]
+[RequireComponent(typeof(Animator), typeof(PlayerInput), typeof(PlayerMovement))]
 public class PlayerAnimation : MonoBehaviour
 {
     private Animator _animator;
-    private Rigidbody2D _rigidbody;
-    private PlayerMovement _movement;
+    private PlayerInput _playerInput;
+    private PlayerMovement _playerMovement;
 
     private void Awake()
     {
         _animator = GetComponent<Animator>();
-        _rigidbody = GetComponent<Rigidbody2D>();
-        _movement = GetComponent<PlayerMovement>();
+        _playerInput = GetComponent<PlayerInput>();
+        _playerMovement = GetComponent<PlayerMovement>();
     }
 
-    private void Update()
+    private void OnEnable()
     {
-        _animator.SetFloat(PlayerAnimatorData.Params.Speed, Mathf.Abs(_rigidbody.velocity.x));
-        _animator.SetBool(PlayerAnimatorData.Params.IsGrounded, _movement.IsGrounded);
+        _playerInput.Moved += OnPlayerMoved;
+        _playerInput.Jumped += OnPlayerJumped;
+        _playerMovement.GroundedChanged += OnGroundedChanged;
+    }
+
+    private void OnDisable()
+    {
+        _playerInput.Moved -= OnPlayerMoved;
+        _playerInput.Jumped -= OnPlayerJumped;
+        _playerMovement.GroundedChanged -= OnGroundedChanged;
+    }
+
+    public void OnPlayerMoved(float value)
+    {
+        _animator.SetFloat(PlayerAnimatorData.Params.Speed, Mathf.Abs(value));
+    }
+
+    public void OnPlayerJumped()
+    {
+        _animator.SetTrigger(PlayerAnimatorData.Params.Jump);
+    }
+
+    private void OnGroundedChanged(bool isGrounded)
+    {
+        _animator.SetBool(PlayerAnimatorData.Params.IsGrounded, isGrounded);
     }
 }

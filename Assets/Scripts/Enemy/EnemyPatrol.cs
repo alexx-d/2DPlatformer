@@ -44,7 +44,7 @@ public class EnemyPatrol : MonoBehaviour
 
     private IEnumerator PatrolRoutine()
     {
-        while (true)
+        while (enabled)
         {
             Transform target = _waypoints[_currentPointIndex];
             _movement.SetTarget(target.position);
