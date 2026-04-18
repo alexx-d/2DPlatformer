@@ -16,7 +16,10 @@ public class Health : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage)
     {
-        if (_currentHealth <= 0) return;
+        if (_currentHealth <= 0)
+        {
+            return;
+        }
 
         _currentHealth -= damage;
         Changed?.Invoke(_currentHealth); 
@@ -25,6 +28,18 @@ public class Health : MonoBehaviour, IDamageable
         {
             Die();
         }
+    }
+
+    public void Heal(int amount)
+    {
+        _currentHealth += amount;
+
+        if (_currentHealth > _maxHealth)
+        {
+            _currentHealth = _maxHealth;
+        }
+
+        Changed?.Invoke(_currentHealth);
     }
 
     private void Die()

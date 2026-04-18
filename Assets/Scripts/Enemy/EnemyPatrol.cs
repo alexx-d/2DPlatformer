@@ -6,43 +6,42 @@ public class EnemyPatrol : MonoBehaviour
 {
     [SerializeField] private Transform _pathRoot;
     [SerializeField] private float _waitTime = 1f;
-
     private const float StopThreshold = 0.1f;
 
     private Transform[] _waypoints;
     private EnemyMovement _movement;
     private int _currentPointIndex;
-    private Coroutine _patrolCoroutine;
+    private Coroutine _patrolRoutine;
     private WaitForSeconds _wait;
 
     private void Awake()
     {
         _movement = GetComponent<EnemyMovement>();
         _wait = new WaitForSeconds(_waitTime);
+
+        InitializeWaypoints();
     }
 
-    private void Start()
+    public void StartPatrol()
     {
-        if (_pathRoot == null)
+        if (_patrolRoutine != null)
         {
-            enabled = false;
             return;
         }
 
-        _waypoints = new Transform[_pathRoot.childCount];
+        _patrolRoutine = StartCoroutine(PatrolRoutine());
+    }
 
-        for (int i = 0; i < _pathRoot.childCount; i++)
+    public void StopPatrol()
+    {
+        if (_patrolRoutine != null)
         {
-            _waypoints[i] = _pathRoot.GetChild(i);
-        }
-
-        if (_waypoints.Length > 0)
-        {
-            _patrolCoroutine = StartCoroutine(PatrolRoutine());
+            StopCoroutine(_patrolRoutine);
+            _patrolRoutine = null;
         }
     }
 
-    private IEnumerator PatrolRoutine()
+    public IEnumerator PatrolRoutine()
     {
         while (enabled)
         {
@@ -57,6 +56,22 @@ public class EnemyPatrol : MonoBehaviour
             yield return _wait;
 
             _currentPointIndex = ++_currentPointIndex % _waypoints.Length;
+        }
+    }
+
+    private void InitializeWaypoints()
+    {
+        if (_pathRoot == null)
+        {
+            enabled = false;
+            return;
+        }
+
+        _waypoints = new Transform[_pathRoot.childCount];
+
+        for (int i = 0; i < _pathRoot.childCount; i++)
+        {
+            _waypoints[i] = _pathRoot.GetChild(i);
         }
     }
 }

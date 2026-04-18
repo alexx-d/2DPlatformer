@@ -1,3 +1,4 @@
+using UnityEditor.Rendering;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -13,6 +14,8 @@ public class EnemyMovement : MonoBehaviour
     private Vector3 _initialScale;
     private Vector2 _targetPosition;
     private bool _hasTarget;
+
+    public float Speed => _speed;
 
     private void Awake()
     {

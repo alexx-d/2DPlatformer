@@ -14,11 +14,11 @@ public class PlayerCombat : MonoBehaviour
 
     private void OnEnable()
     {
-        _playerInput.AttackPerformed += _attacker.Attack;
+        _playerInput.Attacked += _attacker.Attack;
     }
 
     private void OnDisable()
     {
-        _playerInput.AttackPerformed -= _attacker.Attack;
+        _playerInput.Attacked -= _attacker.Attack;
     }
 }

@@ -14,7 +14,7 @@ public class PlayerInput : MonoBehaviour
 
     public event Action<float> Moved;
     public event Action Jumped;
-    public event Action AttackPerformed;
+    public event Action Attacked;
 
     private void Update()
     {
@@ -34,7 +34,7 @@ public class PlayerInput : MonoBehaviour
 
         if (Input.GetKeyDown(AttackKey))
         {
-            AttackPerformed?.Invoke();
+            Attacked?.Invoke();
         }
     }
 }

@@ -18,6 +18,7 @@ public class PlayerAnimation : MonoBehaviour
     {
         _playerInput.Moved += OnPlayerMoved;
         _playerInput.Jumped += OnPlayerJumped;
+        _playerInput.Attacked += OnPlayerAttacked;
         _playerMovement.GroundedChanged += OnGroundedChanged;
     }
 
@@ -25,6 +26,7 @@ public class PlayerAnimation : MonoBehaviour
     {
         _playerInput.Moved -= OnPlayerMoved;
         _playerInput.Jumped -= OnPlayerJumped;
+        _playerInput.Attacked -= OnPlayerAttacked;
         _playerMovement.GroundedChanged -= OnGroundedChanged;
     }
 
@@ -36,6 +38,11 @@ public class PlayerAnimation : MonoBehaviour
     public void OnPlayerJumped()
     {
         _animator.SetTrigger(PlayerAnimatorData.Params.Jump);
+    }
+
+    public void OnPlayerAttacked()
+    {
+        _animator.SetTrigger(PlayerAnimatorData.Params.Attack);
     }
 
     private void OnGroundedChanged(bool isGrounded)
