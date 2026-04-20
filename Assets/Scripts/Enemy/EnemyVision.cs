@@ -11,6 +11,7 @@ public class EnemyVision : MonoBehaviour
     private Transform _confirmedTarget;
     private Coroutine _visibilityCoroutine;
     private Transform _parentTransform;
+    private WaitForSeconds _wait;
 
     public event Action<Transform> PlayerSpotted;
     public event Action PlayerLost;
@@ -18,6 +19,8 @@ public class EnemyVision : MonoBehaviour
     private void Awake()
     {
         _parentTransform = transform.parent;
+
+        _wait = new WaitForSeconds(_checkInterval);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -26,7 +29,7 @@ public class EnemyVision : MonoBehaviour
         {
             if (_visibilityCoroutine == null)
             {
-                _visibilityCoroutine = StartCoroutine(CheckVisibilityRoutine(other.transform));
+                _visibilityCoroutine = StartCoroutine(TrackTargetVisibilityRoutine(other.transform));
             }
         }
     }
@@ -45,8 +48,13 @@ public class EnemyVision : MonoBehaviour
         }
     }
 
-    private IEnumerator CheckVisibilityRoutine(Transform target)
+    private IEnumerator TrackTargetVisibilityRoutine(Transform target)
     {
+        if (target == null)
+        {
+            yield break;
+        }
+
         while (enabled)
         {
             Vector2 direction = (target.position - _parentTransform.position).normalized;
@@ -71,7 +79,7 @@ public class EnemyVision : MonoBehaviour
                 }
             }
 
-            yield return new WaitForSeconds(_checkInterval);
+            yield return _wait;
         }
     }
 

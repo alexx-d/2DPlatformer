@@ -1,7 +1,5 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Windows;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(PlayerInput))]
 public class PlayerMovement : MonoBehaviour
@@ -48,7 +46,7 @@ public class PlayerMovement : MonoBehaviour
     private void FixedUpdate()
     {
         bool wasGrounded = _isGrounded;
-        _isGrounded = CheckGround();
+        _isGrounded = IsGrounded();
 
         if (_isGrounded != wasGrounded)
         {
@@ -79,7 +77,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private bool CheckGround()
+    private bool IsGrounded()
     {
         return Physics2D.OverlapCircle(_groundCheck.position, _checkRadius, _groundLayer);
     }

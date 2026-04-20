@@ -4,11 +4,15 @@ public class PlayerWallet : MonoBehaviour
 {
     private int _coinsCount;
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    public int TotalCoins => _coinsCount;
+
+    public void AddCoins(int amount)
     {
-        if (collision.TryGetComponent(out Coin coin))
+        if (amount < 0)
         {
-            _coinsCount += coin.Collect();
+            return;
         }
+
+        _coinsCount += amount;
     }
 }
