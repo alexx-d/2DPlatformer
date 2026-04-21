@@ -1,15 +1,8 @@
+using System;
 using UnityEngine;
 
-public class Coin : MonoBehaviour, ICollectible
+public class Coin : Pickup
 {
-    [SerializeField] private int _reward = 1;
-
-    public void Collect(GameObject player)
-    {
-        if (player.TryGetComponent(out PlayerWallet wallet))
-        {
-            wallet.AddCoins(_reward);
-            Destroy(gameObject);
-        }
-    }
+    [SerializeField] private int _amount = 1;
+    public int Amount => _amount;
 }

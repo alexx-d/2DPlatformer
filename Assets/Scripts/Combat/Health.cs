@@ -19,12 +19,13 @@ public class Health : MonoBehaviour, IDamageable
 
     public void TakeDamage(int damage)
     {
-        if (_currentHealth <= 0)
+        if (_currentHealth <= 0 || damage < 0)
         {
             return;
         }
 
-        _currentHealth -= damage;
+        _currentHealth = Mathf.Clamp(_currentHealth - damage, 0, _maxHealth);
+
         Changed?.Invoke(_currentHealth); 
 
         if (_currentHealth <= 0)
@@ -35,12 +36,12 @@ public class Health : MonoBehaviour, IDamageable
 
     public void Heal(int amount)
     {
-        _currentHealth += amount;
-
-        if (_currentHealth > _maxHealth)
+        if (amount <= 0 || _currentHealth >= _maxHealth)
         {
-            _currentHealth = _maxHealth;
+            return;
         }
+
+        _currentHealth = Mathf.Clamp(_currentHealth + amount, 0, _maxHealth);
 
         Changed?.Invoke(_currentHealth);
     }
