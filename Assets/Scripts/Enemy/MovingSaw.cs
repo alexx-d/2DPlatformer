@@ -6,6 +6,8 @@ public class MovingSaw : MonoBehaviour
     [SerializeField] private Vector2 _moveDirection = Vector2.right;
     [SerializeField] private float _distance = 3f;
     [SerializeField] private float _speed = 2f;
+    [SerializeField] private float _timeOffset;
+
     [SerializeField] private int _damage = 10;
 
     private Vector2 _startPosition;
@@ -20,9 +22,10 @@ public class MovingSaw : MonoBehaviour
 
     private void FixedUpdate()
     {
-        float moveProgress = Mathf.PingPong(Time.time * _speed, _distance);
+        float moveProgress = Mathf.PingPong((Time.time + _timeOffset) * _speed, _distance);
 
         Vector2 targetPosition = _startPosition + (_moveDirection.normalized * moveProgress);
+
         _rigidbody.MovePosition(targetPosition);
     }
 

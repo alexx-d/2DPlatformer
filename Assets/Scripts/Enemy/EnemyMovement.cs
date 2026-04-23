@@ -1,32 +1,15 @@
 using UnityEditor.Rendering;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
-public class EnemyMovement : MonoBehaviour
+public class EnemyMovement : Mover
 {
-    [SerializeField] private EntityFlipper _flipper;
-    [SerializeField] private float _speed = 2f;
+    [SerializeField] private float _stopThreshold = 0.1f;
 
     private const float RightDirection = 1f;
     private const float LeftDirection = -1f;
-    private const float StopThreshold = 0.1f;
 
-    private Rigidbody2D _rigidbody;
     private Vector2 _targetPosition;
     private bool _hasTarget;
-
-    public float Speed => _speed;
-
-    private void Awake()
-    {
-        _rigidbody = GetComponent<Rigidbody2D>();
-    }
-
-    public void SetTarget(Vector2 target)
-    {
-        _targetPosition = target;
-        _hasTarget = true;
-    }
 
     private void FixedUpdate()
     {
@@ -35,32 +18,21 @@ public class EnemyMovement : MonoBehaviour
             return;
         }
 
-        MoveTowardsTarget();
-    }
-
-    private void MoveTowardsTarget()
-    {
         float distanceToTarget = _targetPosition.x - transform.position.x;
 
-        float direction = distanceToTarget > 0 ? RightDirection : LeftDirection;
-
-        if (Mathf.Abs(distanceToTarget) < StopThreshold)
+        if (Mathf.Abs(distanceToTarget) < _stopThreshold)
         {
-            StopHorizontalMovement();
+            Stop();
             return;
         }
 
-        ApplyVelocity(direction);
-        _flipper.FaceDirection(direction);
+        float direction = distanceToTarget > 0 ? RightDirection : LeftDirection;
+        Move(direction);
     }
 
-    private void ApplyVelocity(float direction)
+    public void SetTarget(Vector2 target)
     {
-        _rigidbody.velocity = new Vector2(direction * _speed, _rigidbody.velocity.y);
-    }
-
-    private void StopHorizontalMovement()
-    {
-        _rigidbody.velocity = new Vector2(0, _rigidbody.velocity.y);
+        _targetPosition = target;
+        _hasTarget = true;
     }
 }

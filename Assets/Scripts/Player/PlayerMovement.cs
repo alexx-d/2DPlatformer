@@ -1,39 +1,26 @@
-using System;
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D), typeof(EntityFlipper))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : Mover
 {
-    [SerializeField] private float _speed = 5f;
-    [SerializeField] private float _jumpForce = 2f;
+    [SerializeField] private float _jumpForce = 5f;
 
-    private Rigidbody2D _rigidbody;
-    private EntityFlipper _flipper;
-
-    private float _direction;
+    private float _inputDirection;
     private bool _isJumpRequested;
 
-    private void Awake()
-    {
-        _rigidbody = GetComponent<Rigidbody2D>();
-        _flipper = GetComponent<EntityFlipper>();
-    }
     private void FixedUpdate()
     {
-        _rigidbody.velocity = new Vector2(_direction * _speed, _rigidbody.velocity.y);
-
-        _flipper.FaceDirection(_direction);
+        Move(_inputDirection);
 
         if (_isJumpRequested)
         {
-            _rigidbody.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
+            Rigidbody.AddForce(Vector2.up * _jumpForce, ForceMode2D.Impulse);
             _isJumpRequested = false;
         }
     }
 
     public void SetDirection(float direction)
     {
-        _direction = direction;
+        _inputDirection = direction;
     }
 
     public void Jump()

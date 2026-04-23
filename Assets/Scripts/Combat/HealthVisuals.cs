@@ -25,11 +25,11 @@ public class HealthVisuals : MonoBehaviour
 
     private void OnEnable()
     {
-        _health.Changed += OnDamageTaken;
+        _health.Damaged += OnDamageTaken;
     }
     private void OnDisable()
     {
-        _health.Changed -= OnDamageTaken;
+        _health.Damaged -= OnDamageTaken;
     }
 
     private void OnDamageTaken(int currentHealth)

@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class EnemyVision : MonoBehaviour
 {
+    [SerializeField] private float _viewRadius = 5f;
+    [SerializeField] private float _checkInterval = 0.2f;
     [SerializeField] private LayerMask _playerLayer;
     [SerializeField] private LayerMask _obstacleLayer;
-    [SerializeField] private float _checkInterval = 0.1f;
 
-    private Transform _confirmedTarget;
-    private Coroutine _visibilityCoroutine;
+    private const int MaxTargetsToFind = 1;
+    private readonly Collider2D[] _overlapResults = new Collider2D[MaxTargetsToFind];
+
     private Transform _parentTransform;
+    private Transform _confirmedTarget;
+    private Coroutine _visionCoroutine;
     private WaitForSeconds _wait;
 
     public event Action<Transform> PlayerSpotted;
@@ -18,79 +22,91 @@ public class EnemyVision : MonoBehaviour
 
     private void Awake()
     {
-        _parentTransform = transform.parent;
-
+        _parentTransform = transform.parent != null ? transform.parent : transform;
         _wait = new WaitForSeconds(_checkInterval);
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnEnable()
     {
-        if (_playerLayer.Contains(other.gameObject.layer))
-        {
-            if (_visibilityCoroutine == null)
-            {
-                _visibilityCoroutine = StartCoroutine(TrackTargetVisibilityRoutine(other.transform));
-            }
-        }
+        _visionCoroutine = StartCoroutine(VisionRoutine());
     }
 
-    private void OnTriggerExit2D(Collider2D other)
+    private void OnDisable()
     {
-        if (_playerLayer.Contains(other.gameObject.layer))
+        if (_visionCoroutine != null)
         {
-            if (_visibilityCoroutine != null)
-            {
-                StopCoroutine(_visibilityCoroutine);
-                _visibilityCoroutine = null;
-            }
-
-            _confirmedTarget = null;
+            StopCoroutine(_visionCoroutine);
+            _visionCoroutine = null;
         }
+
+        ClearTarget();
     }
 
-    private IEnumerator TrackTargetVisibilityRoutine(Transform target)
+    private IEnumerator VisionRoutine()
     {
-        if (target == null)
-        {
-            yield break;
-        }
-
         while (enabled)
         {
-            Vector2 direction = (target.position - _parentTransform.position).normalized;
-            float distance = Vector2.Distance(_parentTransform.position, target.position);
+            int count = Physics2D.OverlapCircleNonAlloc(
+                transform.position,
+                _viewRadius,
+                _overlapResults,
+                _playerLayer
+            );
 
-            RaycastHit2D hit = Physics2D.Raycast(_parentTransform.position, direction, distance, _obstacleLayer);
-
-            if (hit.collider == null)
+            if (count > 0)
             {
-                if (_confirmedTarget == null)
+                Transform target = _overlapResults[0].transform;
+
+                if (IsVisible(target))
                 {
-                    _confirmedTarget = target;
-                    PlayerSpotted?.Invoke(_confirmedTarget);
+                    if (_confirmedTarget == null)
+                    {
+                        _confirmedTarget = target;
+                        PlayerSpotted?.Invoke(_confirmedTarget);
+                    }
+                }
+                else
+                {
+                    ClearTarget();
                 }
             }
             else
             {
-                if (_confirmedTarget != null)
-                {
-                    _confirmedTarget = null;
-                    PlayerLost?.Invoke();
-                }
+                ClearTarget();
             }
 
             yield return _wait;
         }
     }
 
+    private bool IsVisible(Transform target)
+    {
+        Vector2 origin = _parentTransform.position;
+        Vector2 direction = (Vector2)target.position - origin;
+
+        RaycastHit2D hit = Physics2D.Raycast(origin, direction, direction.magnitude, _obstacleLayer);
+
+        return hit.collider == null;
+    }
+
+    private void ClearTarget()
+    {
+        if (_confirmedTarget != null)
+        {
+            _confirmedTarget = null;
+            PlayerLost?.Invoke();
+        }
+    }
+
     private void OnDrawGizmos()
     {
-        Vector2 origin = transform.parent != null ? transform.parent.position : transform.position;
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, _viewRadius);
 
         if (_confirmedTarget != null)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(origin, _confirmedTarget.position);
+            Gizmos.DrawLine(_parentTransform.position, _confirmedTarget.position);
         }
     }
 }

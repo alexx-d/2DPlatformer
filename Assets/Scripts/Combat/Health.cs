@@ -6,7 +6,8 @@ public class Health : MonoBehaviour, IDamageable
     [SerializeField] private int _maxHealth = 100;
     private int _currentHealth;
 
-    public event Action<int> Changed;
+    public event Action<int> Damaged;
+    public event Action<int> Healed;
     public event Action Died;
 
     public int MaxHealth => _maxHealth;
@@ -26,7 +27,7 @@ public class Health : MonoBehaviour, IDamageable
 
         _currentHealth = Mathf.Clamp(_currentHealth - damage, 0, _maxHealth);
 
-        Changed?.Invoke(_currentHealth); 
+        Damaged?.Invoke(_currentHealth); 
 
         if (_currentHealth <= 0)
         {
@@ -43,7 +44,7 @@ public class Health : MonoBehaviour, IDamageable
 
         _currentHealth = Mathf.Clamp(_currentHealth + amount, 0, _maxHealth);
 
-        Changed?.Invoke(_currentHealth);
+        Healed?.Invoke(_currentHealth);
     }
 
     private void Die()

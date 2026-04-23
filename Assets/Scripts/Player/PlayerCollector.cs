@@ -1,18 +1,18 @@
 using UnityEngine;
 
-public class PlayerCollisionHandler : MonoBehaviour
+public class PlayerCollector : MonoBehaviour
 {
     [SerializeField] private Player _player;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.TryGetComponent(out MonoBehaviour item))
+        if (collision.TryGetComponent(out Collectable item))
         {
             HandlePickup(item);
         }
     }
 
-    private void HandlePickup(MonoBehaviour item)
+    private void HandlePickup(Collectable item)
     {
         switch (item)
         {

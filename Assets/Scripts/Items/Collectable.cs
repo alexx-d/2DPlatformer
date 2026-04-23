@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
 
-public abstract class Pickup : MonoBehaviour
+public abstract class Collectable : MonoBehaviour
 {
-    public event Action<Pickup> Collected;
+    public event Action<Collectable> Collected;
 
     public void Collect()
     {

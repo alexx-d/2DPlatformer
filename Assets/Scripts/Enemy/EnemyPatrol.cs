@@ -1,61 +1,51 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent (typeof(EnemyMovement))]
 public class EnemyPatrol : MonoBehaviour
 {
     [SerializeField] private Transform _pathRoot;
     [SerializeField] private float _waitTime = 1f;
-    private const float StopThreshold = 0.1f;
+    [SerializeField] private float _stopThreshold = 0.1f;
 
     private Transform[] _waypoints;
-    private EnemyMovement _movement;
     private int _currentPointIndex;
-    private Coroutine _patrolRoutine;
-    private WaitForSeconds _wait;
+    private float _nextMoveTime;
+    private bool _isWaiting;
+
+    public bool IsWaiting => _isWaiting;
 
     private void Awake()
     {
-        _movement = GetComponent<EnemyMovement>();
-        _wait = new WaitForSeconds(_waitTime);
-
         InitializeWaypoints();
     }
 
-    public void StartPatrol()
+    public Vector2 GetCurrentWaypoint()
     {
-        if (_patrolRoutine != null)
+        return _waypoints[_currentPointIndex].position;
+    }
+
+    public void UpdatePatrolLogic()
+    {
+        if (_waypoints == null || _waypoints.Length <= 1)
         {
             return;
         }
 
-        _patrolRoutine = StartCoroutine(PatrolRoutine());
-    }
-
-    public void StopPatrol()
-    {
-        if (_patrolRoutine != null)
+        if (_isWaiting)
         {
-            StopCoroutine(_patrolRoutine);
-            _patrolRoutine = null;
-        }
-    }
-
-    public IEnumerator PatrolRoutine()
-    {
-        while (enabled)
-        {
-            Transform target = _waypoints[_currentPointIndex];
-            _movement.SetTarget(target.position);
-
-            while (Mathf.Abs(transform.position.x - target.position.x) > StopThreshold)
+            if (Time.time >= _nextMoveTime)
             {
-                yield return null;
+                _isWaiting = false;
+                _currentPointIndex = ++_currentPointIndex % _waypoints.Length;
             }
+            return;
+        }
 
-            yield return _wait;
+        if (Mathf.Abs(transform.position.x - GetCurrentWaypoint().x) <= _stopThreshold)
+        {
+            _isWaiting = true;
 
-            _currentPointIndex = ++_currentPointIndex % _waypoints.Length;
+            _nextMoveTime = Time.time + _waitTime;
         }
     }
 

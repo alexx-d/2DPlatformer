@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public abstract class Spawner<T> : MonoBehaviour where T : Pickup
+public abstract class Spawner<T> : MonoBehaviour where T : Collectable
 {
     [SerializeField] private T _prefab;
     [SerializeField] private int _poolCapacity = 10;
@@ -61,7 +61,7 @@ public abstract class Spawner<T> : MonoBehaviour where T : Pickup
         Destroy(item.gameObject);
     }
 
-    private void OnItemCollected(Pickup item)
+    private void OnItemCollected(Collectable item)
     {
         if (item is T specificItem)
         {

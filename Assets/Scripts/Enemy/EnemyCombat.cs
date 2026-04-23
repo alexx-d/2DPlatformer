@@ -4,53 +4,60 @@ using UnityEngine;
 public class EnemyCombat : MonoBehaviour
 {
     [SerializeField] private float _attackCooldown = 1f;
-    [SerializeField] private LayerMask _playerLayer;
+    [SerializeField] private float _attackRange = 1.5f;
 
     private MeleeAttacker _attacker;
     private EnemyAnimation _enemyAnimation;
-    private float _lastAttackTime;
-    private Transform _targetInRange;
+
+    private float _nextAttackTime;
+    private float _sqrAttackRange;
+    private Transform _target;
 
     private void Awake()
     {
         _attacker = GetComponent<MeleeAttacker>();
-
         _enemyAnimation = GetComponentInParent<EnemyAnimation>();
+
+        _sqrAttackRange = _attackRange * _attackRange;
     }
 
-    private void Update()
+    public void SetTarget(Transform target) => _target = target;
+
+    public void TryStartAttack()
     {
-        if (_targetInRange != null && Time.time >= _lastAttackTime + _attackCooldown)
+        if (_target == null)
         {
-            TryAttack();
+            return;
+        }
+
+        if (IsTargetInAttackRange() && Time.time >= _nextAttackTime)
+        {
+            _nextAttackTime = Time.time + _attackCooldown;
+
+            if (_enemyAnimation != null)
+            {
+                _enemyAnimation.PlayAttack();
+            }
         }
     }
 
-    private void TryAttack()
+    public void ExecuteHit()
     {
-        _lastAttackTime = Time.time;
-
-        if (_enemyAnimation != null)
+        if (_target != null && IsTargetInAttackRange())
         {
-            _enemyAnimation.PlayAttack();
-        }
-
-        _attacker.Attack();
-    }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (_playerLayer.Contains(other.gameObject.layer))
-        {
-            _targetInRange = other.transform;
+            _attacker.Attack();
         }
     }
 
-    private void OnTriggerExit2D(Collider2D other)
+    private bool IsTargetInAttackRange()
     {
-        if (_playerLayer.Contains(other.gameObject.layer))
-        {
-            _targetInRange = null;
-        }
+        Vector2 offset = (Vector2)_target.position - (Vector2)transform.position;
+        return offset.sqrMagnitude <= _sqrAttackRange;
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, _attackRange);
     }
 }
