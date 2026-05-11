@@ -6,6 +6,7 @@ public class PlayerInput : MonoBehaviour
     private const string Horizontal = nameof(Horizontal);
     private const string Jump = nameof(Jump);
     private const KeyCode AttackKey = KeyCode.F;
+    private const KeyCode VampirismKey = KeyCode.V;
 
     private float _horizontalInput;
     private float _lastHorizontalInput;
@@ -14,6 +15,7 @@ public class PlayerInput : MonoBehaviour
     public event Action<float> Moved;
     public event Action Jumped;
     public event Action Attacked;
+    public event Action VampirismPressed;
 
     private void Update()
     {
@@ -34,6 +36,11 @@ public class PlayerInput : MonoBehaviour
         if (Input.GetKeyDown(AttackKey))
         {
             Attacked?.Invoke();
+        }
+
+        if (Input.GetKeyDown(VampirismKey))
+        {
+            VampirismPressed?.Invoke();
         }
     }
 }

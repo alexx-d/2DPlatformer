@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     [SerializeField] private MeleeAttacker _attacker;
     [SerializeField] private GroundDetector _groundDetector;
     [SerializeField] private PlayerAnimation _animation;
+    [SerializeField] private PlayerVampirism _vampirism;
 
     public Health Health => _health;
     public PlayerWallet Wallet => _wallet;
@@ -25,6 +26,8 @@ public class Player : MonoBehaviour
         _input.Attacked += _attacker.Attack;
         _input.Attacked += _animation.PlayAttack;
 
+        _input.VampirismPressed += _vampirism.TryActivate;
+
         _groundDetector.GroundedChanged += _animation.SetGrounded;
     }
 
@@ -37,6 +40,8 @@ public class Player : MonoBehaviour
 
         _input.Attacked -= _attacker.Attack;
         _input.Attacked -= _animation.PlayAttack;
+
+        _input.VampirismPressed -= _vampirism.TryActivate;
 
         _groundDetector.GroundedChanged -= _animation.SetGrounded;
     }
